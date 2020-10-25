@@ -23,7 +23,7 @@ interface Food {
   name: string;
   description: string;
   price: number;
-  formattedPrice: string;
+  formattedValue: number;
   thumbnail_url: string;
 }
 
@@ -32,7 +32,16 @@ const Orders: React.FC = () => {
 
   useEffect(() => {
     async function loadOrders(): Promise<void> {
-      // Load orders from API
+      const response = await api.get('/orders');
+
+      const listOrders = response.data.map((order: Food) => {
+        return {
+          ...order,
+          formattedValue: formatValue(order.price),
+        };
+      });
+
+      setOrders(listOrders);
     }
 
     loadOrders();
@@ -48,18 +57,18 @@ const Orders: React.FC = () => {
         <FoodList
           data={orders}
           keyExtractor={item => String(item.id)}
-          renderItem={({ item }) => (
-            <Food key={item.id} activeOpacity={0.6}>
+          renderItem={({ item: order }) => (
+            <Food key={order.id} activeOpacity={0.6}>
               <FoodImageContainer>
                 <Image
                   style={{ width: 88, height: 88 }}
-                  source={{ uri: item.thumbnail_url }}
+                  source={{ uri: order.thumbnail_url }}
                 />
               </FoodImageContainer>
               <FoodContent>
-                <FoodTitle>{item.name}</FoodTitle>
-                <FoodDescription>{item.description}</FoodDescription>
-                <FoodPricing>{item.formattedPrice}</FoodPricing>
+                <FoodTitle>{order.name}</FoodTitle>
+                <FoodDescription>{order.description}</FoodDescription>
+                <FoodPricing>{order.formattedPrice}</FoodPricing>
               </FoodContent>
             </Food>
           )}
